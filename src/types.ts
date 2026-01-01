@@ -58,3 +58,8 @@ export interface CharacterDTO{
     fullName: string,
     comment: string
 }
+
+export interface GenreDTO{
+    id: number,
+    name: string
+}

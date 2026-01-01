@@ -1,4 +1,4 @@
-import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO } from '../types';
+import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO, GenreDTO } from '../types';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export type BookSearchParams = {
@@ -6,6 +6,7 @@ export type BookSearchParams = {
   authorName?: string;
   authorId?: number;
   languageName?: string;
+  genre?: string; 
   characterName?: string;
   isbn?: string;
   page?: number;
@@ -130,5 +131,16 @@ export async function fetchCharactersByBookId(bookId:number) {
   }
   const data =  await res.json() as CharacterDTO[];
     console.log('[FETCH] fetchCharactersByBookId received:', data);
+  return data;
+}
+
+export async function fetchGenres() {
+  const res = await fetchWithAuth('/api/genres');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as GenreDTO[]; 
+  console.log('[FETCH] genres received:', data);
   return data;
 }

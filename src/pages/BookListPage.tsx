@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { BookSearchResponseDTO} from '../types';
-import { fetchBooks, fetchLanguages } from '../api/api';
+import type { BookSearchResponseDTO, GenreDTO} from '../types';
+import { fetchBooks, fetchGenres, fetchLanguages } from '../api/api';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 
@@ -30,6 +30,8 @@ export default function BookListPage() {
   );
   const [languages, setLanguages] = useState<{ id: number; language: string }[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(''); // single string
+  const [genres, setGenres] = useState<GenreDTO[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<string>(''); // single string
   const [characterName, setCharacterName ] = useState('');
 
   useEffect(() => {
@@ -45,6 +47,21 @@ export default function BookListPage() {
   }
 
   loadLanguages();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+  if (!isAuthenticated) return;
+
+  async function loadGenres() {
+    try {
+      const data = await fetchGenres(); 
+      setGenres(data);                  
+    } catch (err) {
+      console.error('Failed to fetch genres', err);
+    }
+  }
+
+  loadGenres();
   }, [isAuthenticated]);
 
 
@@ -72,6 +89,7 @@ export default function BookListPage() {
         isbn: isbn || undefined,
         authorName: authorName || undefined,
         languageName: selectedLanguage || undefined,
+        genre: selectedGenre || undefined,
         characterName: characterName || undefined,
         page: requestedPage,
         size: 15,
@@ -178,6 +196,7 @@ export default function BookListPage() {
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
+              style={{marginLeft: 10}}
             >
               <option value="">Select language…</option>
               {languages.map(lang => (
@@ -208,6 +227,18 @@ export default function BookListPage() {
             />
           )}
 
+          {isAuthenticated && (
+            <select
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+              style={{marginLeft: 10}}
+            >
+              <option value="">Select genre...</option>
+              {genres.map(genre => (
+                <option key={genre.id} value={genre.name}>{genre.name}</option>
+              ))}
+            </select>
+          )}
         </section>
 
         <section style={{ marginBottom: 12 }}>
