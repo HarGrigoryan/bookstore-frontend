@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import type { BookSearchResponseDTO, PageResponseDTO } from '../types';
-import { fetchBooks } from '../api';
+import { useEffect, useState } from 'react';
+import type { BookSearchResponseDTO} from '../types';
+import { fetchBooks, fetchLanguages } from '../api/api';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header';
 
 
-
-// small design tokens
-const ACCENT = '#2563eb'; // blue
+const ACCENT = '#2563eb'; 
 const CARD_BG = '#ffffff';
 const MUTED = '#6b7280';
 
@@ -21,7 +20,42 @@ export default function BookListPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0); // 0-based
   const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState('1'); // UI is 1-based
   const [expanded, setExpanded] = useState<Record<number, boolean>>({}); 
+  const [title, setTitle] = useState('');
+  const [isbn, setIsbn ] = useState('');
+  const [authorName, setAuthorName ] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(localStorage.getItem('jwt'))
+  );
+  const [languages, setLanguages] = useState<{ id: number; language: string }[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(''); // single string
+  const [characterName, setCharacterName ] = useState('');
+
+  useEffect(() => {
+  if (!isAuthenticated) return;
+
+  async function loadLanguages() {
+    try {
+      const data = await fetchLanguages(); 
+      setLanguages(data);                  
+    } catch (err) {
+      console.error('Failed to fetch languages', err);
+    }
+  }
+
+  loadLanguages();
+  }, [isAuthenticated]);
+
+
+
+  useEffect(() => {
+    const syncAuth = () => setIsAuthenticated(Boolean(localStorage.getItem('jwt')));
+    window.addEventListener('storage', syncAuth);
+    return () => window.removeEventListener('storage', syncAuth);
+  }, []);
+
+
 
   useEffect(() => {
     load(page);
@@ -34,13 +68,19 @@ export default function BookListPage() {
 
     try {
       const resp = await fetchBooks({
-        page: requestedPage, // <- send page
-        size: 10,
+        title: title || undefined,
+        isbn: isbn || undefined,
+        authorName: authorName || undefined,
+        languageName: selectedLanguage || undefined,
+        characterName: characterName || undefined,
+        page: requestedPage,
+        size: 15,
         sortBy: 'title',
       });
 
       setBooks(resp.content || []);
       setPage(resp.pageNumber ?? 0);
+      setPageInput(String((resp.pageNumber ?? 0) + 1));
       setTotalPages(Math.max(1, resp.totalPages ?? 1));
       setExpanded({});
       console.log('[LOAD] response:', resp);
@@ -58,20 +98,126 @@ export default function BookListPage() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 960, margin: '0 auto', fontFamily: 'Inter, system-ui, Arial' }}>
-      <header style={{ display: 'flex',  flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12, textAlign: 'center'}}>
-        <h1 style={{ margin: 0 }}>Bookstore</h1>
-      </header>
+    <>
+    <Header/>
+    <div
+      style={{
+        width: '99vw',             
+        fontFamily: 'Inter, system-ui, Arial',
+        minHeight: '89vh',
+        display: 'flex',
+        flexDirection: 'column',
+        
+      }}
+    >
+      <main style={{ 
+        marginBottom: 20,
+        padding: '0 20px 0 20px', 
+      }}>
+        <section style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+          <input
+            type="text"
+            placeholder="title…"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                load(0); // reset to first page
+              }
+            }}
+            style={{
+              width: 280,
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #ddd',
+              fontSize: 14
+            }}
+          />
 
-      <section style={{ marginBottom: 12 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontWeight: 600 }}>{loading ? 'Loading…' : `${books.length} books`}</div>
-          <div style={{ color: MUTED }}>• Page {page + 1} / {totalPages}</div>
-        </div>
-        {error && <div style={{ color: 'crimson', marginTop: 8 }}>{error}</div>}
-      </section>
+          <input
+            type="text"
+            placeholder="isbn…"
+            value={isbn}
+            onChange={(e) => setIsbn(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                load(0);
+              }
+            }}
+            style={{
+              width: 280,
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #ddd',
+              fontSize: 14,
+              marginLeft: 10  
+            }}
+          />
 
-      <main>
+          <input
+            type="text"
+            placeholder="author…"
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                load(0);
+              }
+            }}
+            style={{
+              width: 280,
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #ddd',
+              fontSize: 14,
+              marginLeft: 10  
+            }}
+          />
+
+          {isAuthenticated && (
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+            >
+              <option value="">Select language…</option>
+              {languages.map(lang => (
+                <option key={lang.id} value={lang.language}>{lang.language}</option>
+              ))}
+            </select>
+          )}
+
+          {isAuthenticated && (
+            <input
+              type="text"
+              placeholder="character…"
+              value={characterName}
+              onChange={(e) => setCharacterName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  load(0);
+                }
+              }}
+              style={{
+                width: 280,
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #ddd',
+                fontSize: 14,
+                marginLeft: 10  
+              }}
+            />
+          )}
+
+        </section>
+
+        <section style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ fontWeight: 600 }}>{loading ? 'Loading…' : `${books.length} books`}</div>
+            <div style={{ color: MUTED }}>• Page {page + 1} / {totalPages}</div>
+          </div>
+          {error && <div style={{ color: 'crimson', marginTop: 8 }}>{error}</div>}
+        </section>
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
@@ -81,7 +227,7 @@ export default function BookListPage() {
           {books.map(b => {
             if (!b.id) return null;
               const id = b.id;
-            const long = (b.description ?? '').length > 240;
+            const long = (b.description ?? '').length > 500;
             const isExpanded = !!expanded[id];
             return (
               <article key={id} style={{
@@ -93,12 +239,19 @@ export default function BookListPage() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    <Link
+                    {isAuthenticated &&(
+                       <Link
                       to={`/books/${id}/details`}
                       style={{ color: 'inherit', textDecoration: 'none' }}
                     >
                       {b.title || '—'}
                     </Link>
+                    )}
+                    { !isAuthenticated &&(
+                      b.title || '—'
+                    )
+                    }
+                   
                   </h3>
 
                   <div style={{ textAlign: 'right', fontSize: 12, color: MUTED }}>
@@ -179,15 +332,30 @@ export default function BookListPage() {
           </button>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div style={{
-              minWidth: 56,
-              textAlign: 'center',
-              padding: '6px 8px',
-              borderRadius: 8,
-              border: '1px solid #eee',
-              background: '#fafafa'
-            }}>
-              {page + 1} / {totalPages}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input
+                type="number"
+                min={1}
+                max={totalPages}
+                value={pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const p = Number(pageInput);
+                    if (!Number.isNaN(p) && p >= 1 && p <= totalPages) {
+                      load(p - 1);
+                    }
+                  }
+                }}
+                style={{
+                  width: 60,
+                  textAlign: 'center',
+                  padding: '6px 8px',
+                  borderRadius: 8,
+                  border: '1px solid #ddd'
+                }}
+              />
+              <span style={{ color: MUTED }}>/ {totalPages}</span>
             </div>
           </div>
 
@@ -222,9 +390,32 @@ export default function BookListPage() {
         </div>
       </main>
 
-      <footer style={{ marginTop: 20, color: MUTED, fontSize: 13 }}>
-        Tip: click <span style={{ backgroundColor: '#e0f2fe', padding: '0px 4px', borderRadius: 2, lineHeight: 0.8 }}>Show more</span> to read full description.
-      </footer>
+      <footer
+      style={{         
+        boxSizing: 'border-box', 
+        padding: '12px 20px',    
+        marginTop: 'auto',
+        backgroundColor: '#f8fafc', 
+        color: MUTED,
+        fontSize: 13,
+        textAlign: 'center',
+      }}
+    >
+      Tip: click{' '}
+      <span
+        style={{
+          backgroundColor: '#e0f2fe',
+          padding: '0px 4px',
+          borderRadius: 2,
+          lineHeight: 0.8,
+        }}
+      >
+        Show more
+      </span>{' '}
+      to read full description.
+    </footer>
+
     </div>
+  </>
   );
 }

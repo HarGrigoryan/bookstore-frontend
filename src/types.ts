@@ -7,6 +7,7 @@ export interface BookSearchResponseDTO {
   description?: string | null;
   format?: string | null;
   isbn?: string | null;
+  characterName?: string | null;
   edition?: string | null;
   pageNumber?: number | null;
   price?: number | null;
@@ -14,10 +15,41 @@ export interface BookSearchResponseDTO {
   languageId?: number | null;
 }
 
+export interface BookInstanceDTO {
+  id: number;
+  instanceNumber?: number;
+  isRentable?: boolean;
+  isSellable?: boolean;
+  maxRentCount?: number;
+  price?: number;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  bookId?: number;
+};
+
+export interface AuthorDTO {
+    id: number,
+    fullName: string,
+    isOnGoodreads: boolean
+}
+
 export interface PageResponseDTO<T> {
   content: T[];
   pageNumber: number;
-  pageSize: number;
+  pageSize: number; 
   totalPages: number;
   totalElements: number;
+}
+
+export interface AuthorResponseDTO{
+    id: number;
+    fullName: string,
+    isOnGoodreads: boolean,
+    authorRole: string
+}
+
+export interface LanguageDTO{
+    id: number,
+    language: string
 }

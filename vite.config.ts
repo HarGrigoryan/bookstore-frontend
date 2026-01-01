@@ -8,16 +8,31 @@ export default defineConfig({
   server: {
     // Proxy API requests to backend to avoid CORS / HTML parse issues
     proxy: {
-      '/books': {
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
-      '/book-instances': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
+      // '/book-instances': {
+      //   target: 'http://localhost:8080',
+      //   changeOrigin: true,
+      //   secure: false,
+      // },
+      // '/authors': {
+      //   target: 'http://localhost:8080',
+      //   changeOrigin: true,
+      //   secure: false
+      // },
+      // '/auth': {
+      //   target: 'http://localhost:8080',
+      //   changeOrigin: true,
+      //   secure: false
+      // },
+      // '/languages': {
+      //   target: 'http://localhost:8080',
+      //   changeOrigin: true,
+      //   secure: false
+      // }
     },
   },
 });

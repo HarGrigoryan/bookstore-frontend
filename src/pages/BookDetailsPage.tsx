@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchBookById, fetchBookInstances } from '../api';
+import { fetchAuthor, fetchBookById, fetchBookInstances } from '../api/api';
 import type { BookSearchResponseDTO, PageResponseDTO, BookInstanceDTO } from '../types';
+import Header from '../components/Header';
 
 
 
@@ -21,6 +22,8 @@ export default function BookDetailsPage() {
   const [instances, setInstances] = useState<PageResponseDTO<BookInstanceDTO> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authors, setAuthors] = useState<PageResponseDTO<any> | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -29,14 +32,16 @@ export default function BookDetailsPage() {
     setLoading(true);
     setError(null);
 
-    Promise.all([fetchBookById(bookId), fetchBookInstances(bookId)])
-      .then(([bookData, instancesData]) => {
-        setBook(bookData);
-        setInstances(instancesData);
-      })
-      .catch((err) => setError(String(err)))
-      .finally(() => setLoading(false));
-  }, [id]);
+    Promise.all([
+    fetchBookById(bookId),
+    fetchBookInstances(bookId),
+    fetchAuthor({ bookId }),]).then(([bookData, instancesData, authorsData]) => {
+            setBook(bookData);
+            setInstances(instancesData);
+            setAuthors(authorsData); })
+                .catch((err) => setError(String(err)))
+                .finally(() => setLoading(false));
+            }, [id]);
 
   if (loading) return <div style={{ padding: 40 }}>Loading…</div>;
   if (error) return <div style={{ padding: 40, color: 'red' }}>Error: {error}</div>;
@@ -45,10 +50,12 @@ export default function BookDetailsPage() {
   const instanceList = instances?.content ?? [];
 
   return (
+  <>
+    <Header/>
     <div
       style={{
         minHeight: '100vh',
-        padding: 40,
+        padding: '0px 40px 40px 40px',
         fontFamily: 'Inter, sans-serif',
         background: COLORS.pageBg,
         display: 'flex',
@@ -65,17 +72,19 @@ export default function BookDetailsPage() {
       >
         <h1 style={{ fontSize: 36, marginBottom: 8 }}>{book.title}</h1>
         <p style={{ color: COLORS.muted, fontSize: 16 }}>
-          ISBN: <strong>{book.isbn ? <a href={`https://isbnsearch.org/isbn/${book.isbn}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{book.isbn}</a> : '—'}</strong> &nbsp;|&nbsp;
-          Format: <strong>{book.format ?? '—'}</strong> &nbsp;|&nbsp;
-          Price: <strong>{book.price != null ? `$${book.price.toFixed(2)}` : '—'}</strong> &nbsp;|&nbsp;
-          Published: <strong>{book.publishDate ?? '—'}</strong>
+            ISBN: <strong>{book.isbn ? <a href={`https://isbnsearch.org/isbn/${book.isbn}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{book.isbn}</a> : '—'}</strong> &nbsp;|&nbsp;
+            Format: <strong>{book.format ?? '—'}</strong> &nbsp;|&nbsp;
+            Price: <strong>{book.price != null ? `$${book.price.toFixed(2)}` : '—'}</strong> &nbsp;|&nbsp;
+            Published: <strong>{book.publishDate ?? '—'}</strong>
+            <br/>
+            Author(s): <strong>{authors?.content?.length ? authors.content.map(a => a.fullName).join(', ') : '—'} </strong>
         </p>
       </div>
 
       {/* Book Description */}
       {book.description && (
         <div
-          style={{
+            style={{
             maxWidth: 800,
             width: '100%',
             padding: 20,
@@ -84,11 +93,34 @@ export default function BookDetailsPage() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
             marginBottom: 40,
             lineHeight: 1.6,
-          }}
+            }}
         >
-          {book.description}
+            {(() => {
+            const long = book.description.length > 500;
+            return (
+                <>
+                <div>{!long || expanded ? book.description : book.description.slice(0, 220) + '…'}</div>
+                {long && (
+                    <button
+                    onClick={() => setExpanded(!expanded)}
+                    style={{
+                        marginTop: 8,
+                        background: 'transparent',
+                        color: COLORS.accent,
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        fontSize: 13,
+                    }}
+                    >
+                    {expanded ? 'Show less' : 'Show more'}
+                    </button>
+                )}
+                </>
+            );
+            })()}
         </div>
-      )}
+        )}
 
       {/* Book Instances */}
       <section style={{ width: '100%', maxWidth: 960 }}>
@@ -171,5 +203,31 @@ export default function BookDetailsPage() {
         )}
       </section>
     </div>
+
+     <footer
+      style={{
+        width: '100vw',          
+        boxSizing: 'border-box', 
+        padding: '12px 20px',    
+        marginTop: 20,
+        backgroundColor: '#f8fafc', 
+        fontSize: 13,
+        textAlign: 'center',
+      }}
+    >
+      Tip: click{' '}
+      <span
+        style={{
+          backgroundColor: '#e0f2fe',
+          padding: '0px 4px',
+          borderRadius: 2,
+          lineHeight: 0.8,
+        }}
+      >
+        Show more
+      </span>{' '}
+      to read full description.
+    </footer>
+  </>
   );
 }
