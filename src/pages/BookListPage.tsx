@@ -297,7 +297,7 @@ export default function BookListPage() {
         </div>
 
         {!loading && books.length === 0 && !error && (
-          <div style={{ marginTop: 16, color: MUTED }}>No books found for this page.</div>
+          <div style={{ marginTop: 16, color: MUTED }}>No books found.</div>
         )}
 
         <div 

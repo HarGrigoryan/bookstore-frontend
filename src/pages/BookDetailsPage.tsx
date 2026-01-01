@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchAuthor, fetchBookById, fetchBookInstances } from '../api/api';
-import type { BookSearchResponseDTO, PageResponseDTO, BookInstanceDTO } from '../types';
+import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId } from '../api/api';
+import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO } from '../types';
 import Header from '../components/Header';
 
 
@@ -22,11 +22,19 @@ export default function BookDetailsPage() {
   const [instances, setInstances] = useState<PageResponseDTO<BookInstanceDTO> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [authors, setAuthors] = useState<PageResponseDTO<any> | null>(null);
+  const [authors, setAuthors] = useState<AuthorDTO[] | null>(null);
+  const [characters, setCharacters] = useState<CharacterDTO[] | null>(null); 
   const [expanded, setExpanded] = useState(false);
+  const [charsExpanded, setCharsExpanded] = useState(false);
+
 
   useEffect(() => {
-    if (!id) return;
+      if (!id) {
+        setLoading(false);
+        setError('No book id provided');
+        return;
+      }
+
     const bookId = Number(id);
 
     setLoading(true);
@@ -35,10 +43,14 @@ export default function BookDetailsPage() {
     Promise.all([
     fetchBookById(bookId),
     fetchBookInstances(bookId),
-    fetchAuthor({ bookId }),]).then(([bookData, instancesData, authorsData]) => {
+    fetchAuthorsByBookId(bookId),
+    fetchCharactersByBookId(bookId),  
+      ]).then(([bookData, instancesData, authorsData, charactersData]) => {
             setBook(bookData);
             setInstances(instancesData);
-            setAuthors(authorsData); })
+            setAuthors(authorsData); 
+            setCharacters(charactersData);
+          })
                 .catch((err) => setError(String(err)))
                 .finally(() => setLoading(false));
             }, [id]);
@@ -77,7 +89,7 @@ export default function BookDetailsPage() {
             Price: <strong>{book.price != null ? `$${book.price.toFixed(2)}` : '—'}</strong> &nbsp;|&nbsp;
             Published: <strong>{book.publishDate ?? '—'}</strong>
             <br/>
-            Author(s): <strong>{authors?.content?.length ? authors.content.map(a => a.fullName).join(', ') : '—'} </strong>
+            Author(s): <strong>{authors?.length ? authors.map(a => a.fullName).join(', ') : '—'} </strong>
         </p>
       </div>
 
@@ -95,32 +107,86 @@ export default function BookDetailsPage() {
             lineHeight: 1.6,
             }}
         >
-            {(() => {
+          {(() => {
             const long = book.description.length > 500;
             return (
                 <>
-                <div>{!long || expanded ? book.description : book.description.slice(0, 220) + '…'}</div>
-                {long && (
-                    <button
-                    onClick={() => setExpanded(!expanded)}
-                    style={{
-                        marginTop: 8,
-                        background: 'transparent',
-                        color: COLORS.accent,
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: 0,
-                        fontSize: 13,
-                    }}
-                    >
-                    {expanded ? 'Show less' : 'Show more'}
-                    </button>
-                )}
+                <div>
+                  <strong style={{ color: '#111' }}>Description:</strong>{' '}
+                  <br/>
+                  {!long || expanded ? book.description : book.description.slice(0, 220)}
+                  {long && (
+                      <button
+                      onClick={() => setExpanded(!expanded)}
+                      style={{
+                          marginTop: 0,
+                          background: 'transparent',
+                          color: COLORS.accent,
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                          fontSize: 13,
+                      }}
+                      >
+                      {expanded ? 'Show less' : 'Show more'}
+                      </button>  
+                  )}
+                  </div>
                 </>
-            );
-            })()}
+          );
+          })()}
         </div>
-        )}
+        )
+      }
+
+      {/*Characters*/}
+      {characters?.length ? (
+        <div
+          style={{
+            maxWidth: 800,
+            width: '100%',
+            padding: 20,
+            background: COLORS.cardBg,
+            borderRadius: 12,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            marginBottom: 40,
+            lineHeight: 1.6,
+          }}
+        >
+          {(() => {
+            const long = characters.length > 10;
+            return (
+            <>
+              <div>
+                <strong style={{ color: '#111' }}>Characters:</strong>{' '}
+                <br/>
+                {(!long || charsExpanded
+                  ? characters
+                  : characters.slice(0, 10) 
+                ).map(c => c.fullName + (c.comment ? ` (${c.comment})` : '')).join(', ')}               
+                {long && (
+                  <button
+                    onClick={() => setCharsExpanded(!charsExpanded)}
+                    style={{
+                      marginTop: 8,
+                      background: 'transparent',
+                      color: COLORS.accent,
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontSize: 13,
+                    }}
+                  >
+                    {charsExpanded ? 'Show less' : 'Show more'}
+                  </button>
+                )}
+            </div>
+            </>
+            );
+          })()}
+        </div>
+      ): null}
+
 
       {/* Book Instances */}
       <section style={{ width: '100%', maxWidth: 960 }}>

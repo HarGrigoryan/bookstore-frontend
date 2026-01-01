@@ -1,4 +1,4 @@
-import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO } from '../types';
+import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO } from '../types';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export type BookSearchParams = {
@@ -96,13 +96,13 @@ export async function fetchAuthor(params: AuthorSearchParams) {
 
 export async function fetchAuthorsByBookId(bookId: number){
   console.log('[FETCH] authorsByBookId called with bookId:', bookId);
-  const res = await fetchWithAuth(`/api/books?id=${bookId}/authors`);
+  const res = await fetchWithAuth(`/api/books/${bookId}/authors`);
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText);
     console.error('[FETCH] fetchAuthorsByBookId failed:', text);
     throw new Error(`HTTP ${res.status}: ${text}`);
   }
-  const data = await res.json() as AuthorResponseDTO;
+  const data = await res.json() as AuthorResponseDTO[];
   console.log('[FETCH] fetchAuthorsByBookId received:', data);
   return data;
 }
@@ -120,4 +120,15 @@ export async function fetchBookInstances(bookId: number) {
   return data;
 }
 
-
+export async function fetchCharactersByBookId(bookId:number) {
+    console.log('[FETCH] fetchCharactersByBookId called with bookId:', bookId);
+  const res = await fetchWithAuth(`/api/books/${bookId}/characters`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    console.error('[FETCH] fetchCharactersByBookId failed:', text);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data =  await res.json() as CharacterDTO[];
+    console.log('[FETCH] fetchCharactersByBookId received:', data);
+  return data;
+}

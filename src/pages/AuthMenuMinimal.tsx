@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { login } from '../api/auth';
 import { register } from '../api/auth';
 import Header from '../components/Header';
@@ -24,7 +24,9 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
 
 
   return (
-    <main style={{width: '100vw'}}>
+    <main style={{
+      width: '100vw'
+    }}>
       <Header showAuth={false} />
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <h1>Sign into your account</h1>
@@ -37,6 +39,7 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
         </form>
       </div>
     </main>
+  
   );
 }
 

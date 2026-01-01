@@ -7,7 +7,6 @@ export interface BookSearchResponseDTO {
   description?: string | null;
   format?: string | null;
   isbn?: string | null;
-  characterName?: string | null;
   edition?: string | null;
   pageNumber?: number | null;
   price?: number | null;
@@ -52,4 +51,10 @@ export interface AuthorResponseDTO{
 export interface LanguageDTO{
     id: number,
     language: string
+}
+
+export interface CharacterDTO{
+    id: number,
+    fullName: string,
+    comment: string
 }
