@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId } from '../api/api';
-import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO } from '../types';
+import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId, fetchGenresByBookId } from '../api/api';
+import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO } from '../types';
 import Header from '../components/Header';
 
 
@@ -26,7 +26,8 @@ export default function BookDetailsPage() {
   const [characters, setCharacters] = useState<CharacterDTO[] | null>(null); 
   const [expanded, setExpanded] = useState(false);
   const [charsExpanded, setCharsExpanded] = useState(false);
-
+  const [genres, setGenres] = useState<GenreDTO[] | null>(null); 
+  const [genresExpanded, setGenresExpanded] = useState(false);
 
   useEffect(() => {
       if (!id) {
@@ -44,12 +45,14 @@ export default function BookDetailsPage() {
     fetchBookById(bookId),
     fetchBookInstances(bookId),
     fetchAuthorsByBookId(bookId),
-    fetchCharactersByBookId(bookId),  
-      ]).then(([bookData, instancesData, authorsData, charactersData]) => {
+    fetchCharactersByBookId(bookId),
+    fetchGenresByBookId(bookId)  
+      ]).then(([bookData, instancesData, authorsData, charactersData, genresData]) => {
             setBook(bookData);
             setInstances(instancesData);
             setAuthors(authorsData); 
             setCharacters(charactersData);
+            setGenres(genresData)
           })
                 .catch((err) => setError(String(err)))
                 .finally(() => setLoading(false));
@@ -92,6 +95,54 @@ export default function BookDetailsPage() {
             Author(s): <strong>{authors?.length ? authors.map(a => a.fullName).join(', ') : '—'} </strong>
         </p>
       </div>
+
+      {/*Genres*/}
+      {genres?.length ? (
+        <div
+          style={{
+            maxWidth: 800,
+            width: '100%',
+            padding: 20,
+            background: COLORS.cardBg,
+            borderRadius: 12,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            marginBottom: 40,
+            lineHeight: 1.6,
+          }}
+        >
+          {(() => {
+            const long = genres.length > 10;
+            return (
+            <>
+              <div>
+                <strong style={{ color: '#111' }}>Genres: </strong>{' '}
+                {(!long || genresExpanded
+                  ? genres
+                  : genres.slice(0, 10) 
+                ).map(g => g.name).join(', ')}               
+                {long && (
+                  <button
+                    onClick={() => setGenresExpanded(!genresExpanded)}
+                    style={{
+                      marginTop: 8,
+                      background: 'transparent',
+                      color: COLORS.accent,
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontSize: 13,
+                    }}
+                  >
+                    {charsExpanded ? 'Show less' : 'Show more'}
+                  </button>
+                )}
+            </div>
+            </>
+            );
+          })()}
+        </div>
+      ): null}
+
 
       {/* Book Description */}
       {book.description && (
@@ -272,7 +323,7 @@ export default function BookDetailsPage() {
 
      <footer
       style={{
-        width: '100vw',          
+        width: '99vw',          
         boxSizing: 'border-box', 
         padding: '12px 20px',    
         marginTop: 20,

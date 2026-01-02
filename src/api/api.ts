@@ -144,3 +144,17 @@ export async function fetchGenres() {
   console.log('[FETCH] genres received:', data);
   return data;
 }
+
+
+export async function fetchGenresByBookId(bookId:number) {
+    console.log('[FETCH] fetchGenresByBookId called with bookId:', bookId);
+  const res = await fetchWithAuth(`/api/books/${bookId}/genres`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    console.error('[FETCH] fetchGenresByBookId failed:', text);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data =  await res.json() as GenreDTO[];
+    console.log('[FETCH] fetchGenresByBookId received:', data);
+  return data;
+}

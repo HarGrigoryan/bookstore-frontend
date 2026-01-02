@@ -25,19 +25,42 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
 
   return (
     <main style={{
-      width: '100vw'
+      width: '99vw'
     }}>
       <Header showAuth={false} />
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <h1>Sign into your account</h1>
       </div>
-      <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center' }}>
+      <div style={{ minHeight: '64vh', display: 'flex', alignItems: 'center' }}>
         <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: '20px auto', display: 'flex', flexDirection: 'column',  gap: 10 }}>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
           <button type="submit" style={{ padding: 8, borderRadius: 6, backgroundColor: '#2563eb', color: '#fff' }}>Log in</button>
         </form>
       </div>
+      <footer
+        style={{        
+          boxSizing: 'border-box', 
+          padding: '12px 20px',    
+          marginTop: 20,
+          backgroundColor: '#f8fafc', 
+          fontSize: 13,
+          textAlign: 'center',
+        }}
+      >
+        Tip:{' '}
+        <span
+          style={{
+            backgroundColor: '#e0f2fe',
+            padding: '0px 4px',
+            borderRadius: 2,
+            lineHeight: 0.8,
+          }}
+        >
+          Signing in
+        </span>{' '}
+        opens access to many more features.
+      </footer>
     </main>
   
   );
@@ -77,14 +100,25 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
 
 
   return (
-    <main style={{width: '100vw'}}>
+    <main style={{width: '99vw'}}>
       <Header showAuth={false} />
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center', 
+        justifyContent: 'center'
+      }}>
         <h1>Create an account</h1>
       </div>
-      <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center' }}>
-        <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: '20px auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <input
+      <div style={{ 
+        minHeight: '67vh', 
+        display: 'flex', 
+        alignItems: 'center' 
+        }}>
+        <form onSubmit={handleSubmit} style={{ 
+          maxWidth: 400, 
+          margin: '20px auto', 
+          display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <input
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
             placeholder="First name"
@@ -106,6 +140,31 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
           <button type="submit" style={{ padding: 8, borderRadius: 6, backgroundColor: '#16a34a', color: '#fff' }}>Sign up</button>
         </form>
       </div>
+
+      <footer
+        style={{        
+          boxSizing: 'border-box', 
+          padding: '12px 20px',    
+          // marginTop: 20,
+          backgroundColor: '#f8fafc', 
+          fontSize: 13,
+          textAlign: 'center',
+        }}
+      >
+        Tip:{' '}
+        <span
+          style={{
+            backgroundColor: '#e0f2fe',
+            padding: '0px 4px',
+            borderRadius: 2,
+            lineHeight: 0.8,
+          }}
+        >
+          Signing up
+        </span>{' '}
+        provides access to many more features.
+      </footer>
+
     </main>
   );
 }
