@@ -59,8 +59,7 @@ export default function Header({ showAuth = true }: { showAuth?: boolean }) {
                 {showAuth  && isAuthenticated && (
                 <button
                     onClick={() => {
-                    localStorage.removeItem('jwt');
-                    localStorage.removeItem('refreshToken');
+                    localStorage.clear();
                     setIsAuthenticated(false);
                     }}
                 >

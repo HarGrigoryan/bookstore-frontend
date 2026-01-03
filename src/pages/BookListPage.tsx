@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { BookSearchResponseDTO, GenreDTO} from '../types';
 import { fetchBooks, fetchGenres, fetchLanguages } from '../api/api';
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 
 
@@ -33,6 +34,35 @@ export default function BookListPage() {
   const [genres, setGenres] = useState<GenreDTO[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>(''); // single string
   const [characterName, setCharacterName ] = useState('');
+  const location = useLocation();
+  const [readyToLoad, setReadyToLoad] = useState(false);
+
+  useEffect(() => {
+    if (!location.state) {
+      setReadyToLoad(true);
+      return;
+    }
+    const s = location.state as any;
+    setTitle(s.title ?? '');
+    setIsbn(s.isbn ?? '');
+    setAuthorName(s.authorName ?? '');
+    setSelectedLanguage(s.selectedLanguage ?? '');
+    setSelectedGenre(s.selectedGenre ?? '');
+    setCharacterName(s.characterName ?? '');
+    setReadyToLoad(true);
+  }, []);
+
+  useEffect(() => {
+    if (!readyToLoad) return;
+
+    const initialPage = (location.state as any)?.page ?? 0;
+    load(initialPage); 
+  }, [readyToLoad]);
+
+  useEffect(() => {
+    if (readyToLoad) load(0);
+  }, [selectedLanguage, selectedGenre]);
+
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -71,13 +101,6 @@ export default function BookListPage() {
     window.addEventListener('storage', syncAuth);
     return () => window.removeEventListener('storage', syncAuth);
   }, []);
-
-
-
-  useEffect(() => {
-    load(page);
-  }, []);
-
 
   async function load(requestedPage = 0) {
     setLoading(true);
@@ -272,7 +295,16 @@ export default function BookListPage() {
                   <h3 style={{ margin: 0, fontSize: 16 }}>
                     {isAuthenticated &&(
                        <Link
-                      to={`/books/${id}/details`}
+                          to={`/books/${id}/details`}
+                          state={{
+                            page,
+                            title,
+                            isbn,
+                            authorName, 
+                            selectedLanguage,
+                            selectedGenre,
+                            characterName,
+                          }}
                       style={{ color: 'inherit', textDecoration: 'none' }}
                     >
                       {b.title || '—'}

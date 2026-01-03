@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { login } from '../api/auth';
 import { register } from '../api/auth';
 import Header from '../components/Header';
+import { updateUserContext } from '../security/Utils';
 
 export function LoginForm({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('');
@@ -13,8 +14,7 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
     try {
       const resp = await login(email, password);
 
-      localStorage.setItem('jwt', resp.accessToken);
-      localStorage.setItem('refreshToken', resp.refreshToken);
+      updateUserContext(resp)
 
       if (onLogin) onLogin();
     } catch (err) {
@@ -88,9 +88,8 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
         email,
         password,
       });
-
-      localStorage.setItem('jwt', resp.accessToken);
-      localStorage.setItem('refreshToken', resp.refreshToken);
+      
+      updateUserContext(resp)
 
       if (onSignup) onSignup();
     } catch (err) {

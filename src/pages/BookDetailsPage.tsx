@@ -1,10 +1,9 @@
 import { useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId, fetchGenresByBookId } from '../api/api';
 import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO } from '../types';
 import Header from '../components/Header';
-
-
 
 const COLORS = {
   accent: '#2563eb',
@@ -28,6 +27,10 @@ export default function BookDetailsPage() {
   const [charsExpanded, setCharsExpanded] = useState(false);
   const [genres, setGenres] = useState<GenreDTO[] | null>(null); 
   const [genresExpanded, setGenresExpanded] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
 
   useEffect(() => {
       if (!id) {
@@ -67,6 +70,22 @@ export default function BookDetailsPage() {
   return (
   <>
     <Header/>
+    <button
+      onClick={() =>
+          navigate('/books', { state: location.state })
+        }
+        style={{
+          alignSelf: 'flex-start',
+          margin: '12px 0 0 40px',
+          background: 'transparent',
+          border: 'none',
+          fontSize: 20,
+          cursor: 'pointer',
+        }}
+      >
+        ← Back
+      </button>
+
     <div
       style={{
         minHeight: '100vh',
