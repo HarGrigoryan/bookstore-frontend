@@ -86,7 +86,14 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
         });
         }
 
+        const rolesToRemove = existingRoles.filter(r => !userRoles.includes(r));
 
+        if (rolesToRemove.length) {
+            await fetchWithAuth(`/api/users/${userId}/roles`, {
+                method: 'DELETE',
+                body: JSON.stringify(rolesToRemove),
+            });
+        }
        const oldPermissions: Partial<Record<Role, Permission[]>> = user?.permissions ?? {};
 
         for (const role of userRoles) {
@@ -121,26 +128,6 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
       setLoading(false);
     }
   }
-
-
-//   async function toggleRole(role: Role) {
-//     const has = userRoles.includes(role);
-//     setError(null);
-
-//     const res = await fetchWithAuth(`/api/users/${userId}/roles`, {
-//         method: has ? 'DELETE' : 'POST',
-//         body: JSON.stringify([role]),
-//     });
-
-//     if (!res.ok) {
-//         setError(await res.text().catch(() => 'Role update failed'));
-//         return;
-//     }
-
-//     setUserRoles(prev =>
-//         has ? prev.filter(r => r !== role) : [...prev, role]
-//     );
-//     }
 
     function toggleRole(role: Role) {
     setUserRoles(prev =>
@@ -198,16 +185,35 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
   return (
     <div className="modal-backdrop" style={backdropStyle}>
       <div className="modal" style={modalStyle}>
-        <h2>User — {user.firstname} {user.lastname}</h2>
-
-        <div style={{ marginBottom: 8 }}>
-          <label>First name</label>
-          <input value={firstname} onChange={e => setFirstname(e.target.value)} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h2>User — {user.firstname} {user.lastname}</h2>
+            <button
+                onClick={onClose}
+                style={{
+                    position: 'absolute',
+                    right: 10,
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: 28,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    padding: 0, 
+                    outline: 'none'
+                }}
+                >
+                ×
+            </button>
         </div>
 
         <div style={{ marginBottom: 8 }}>
-          <label>Last name</label>
-          <input value={lastname} onChange={e => setLastname(e.target.value)} />
+          <label>First name: </label>
+          <input value={firstname} onChange={e => setFirstname(e.target.value)} style={{ textAlign: 'center' }}/>
+        </div>
+
+        <div style={{ marginBottom: 8 }}>
+          <label>Last name: </label>
+          <input value={lastname} onChange={e => setLastname(e.target.value)} style={{ textAlign: 'center' }}/>
         </div>
 
         <div style={{ marginBottom: 8 }}>
@@ -215,6 +221,13 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
             <input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} />
             Enabled
           </label>
+
+           {/* Immutable info */}
+            <div style={{ marginTop: 6, fontSize: 13, color: '#555' }}>
+                <div><strong>Date joined: </strong>{user.createdAt}</div>
+                <div><strong>Last Updated: </strong>{user.updatedAt}</div>
+            </div>
+
         </div>
 
         <div style={{ marginTop: 12 }}>
@@ -270,5 +283,14 @@ const backdropStyle: React.CSSProperties = {
   background: 'rgba(0,0,0,0.4)', zIndex: 9999
 };
 const modalStyle: React.CSSProperties = {
-  background: '#fff', padding: 20, borderRadius: 8, minWidth: 420, maxWidth: '90%', boxShadow: '0 6px 20px rgba(0,0,0,0.2)'
+  background: '#fff',
+  padding: '0px 20px 20px 20px',    
+  borderRadius: 8,
+  minWidth: 420,
+  maxWidth: '90%',
+  maxHeight: '80vh',      
+  overflowY: 'auto',     
+  boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+  position: 'relative',   
 };
+
