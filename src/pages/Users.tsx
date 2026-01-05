@@ -6,7 +6,6 @@ import { Role } from "../security/Enums";
 import UserDetailsModal from '../components/UserDetailsModal'; 
 
 const MUTED = '#6b7280';
-const ACCENT = '#2563eb'; 
 
 export default function UsersPage() {
     const [users, setUsers] = useState<UserDTO[]>([]);
@@ -78,7 +77,6 @@ export default function UsersPage() {
                 
             }}
             >
-                
                 <main style={{ 
                         marginBottom: 20,
                         padding: '0 20px 0 20px', 
@@ -307,7 +305,6 @@ export default function UsersPage() {
                           </button>
                         </div>
                       </main>
-                
 
             </div>
 

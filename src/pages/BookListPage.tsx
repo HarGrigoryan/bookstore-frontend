@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { BookSearchResponseDTO, GenreDTO} from '../types';
 import { fetchBooks, fetchGenres, fetchLanguages } from '../api/api';
@@ -36,6 +37,9 @@ export default function BookListPage() {
   const [characterName, setCharacterName ] = useState('');
   const location = useLocation();
   const [readyToLoad, setReadyToLoad] = useState(false);
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (!location.state) {
@@ -155,6 +159,25 @@ export default function BookListPage() {
         marginBottom: 20,
         padding: '0 20px 0 20px', 
       }}>
+        {location.state?.authorName && (
+          <button
+            onClick={() => {
+              const s = location.state as any;
+              navigate('/authors', { state: s?.authorsState });
+            }}
+            style={{
+              marginBottom: 10,
+              alignSelf: 'flex-start',
+              background: 'transparent',
+              border: 'none',
+              color: '#2563eb',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            ← Back to authors
+          </button>
+        )}
         <section style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
           <input
             type="text"

@@ -94,7 +94,7 @@ export async function fetchBookById(id: number) {
   return data;
 }
 
-export async function fetchAuthor(params: AuthorSearchParams) {
+export async function fetchAuthors(params: AuthorSearchParams) {
   console.log('[FETCH] fetchAuthorByBookId called with id:', params.bookId)
   const defaults = { page: 0, size: 9, sortDirection: "ASC"};
   const finalParams = { ...defaults, ...params };
