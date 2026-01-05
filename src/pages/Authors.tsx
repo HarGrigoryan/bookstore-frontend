@@ -96,7 +96,11 @@ export default function AuthorsPage() {
                             type="text"
                             placeholder="full name..."
                             value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
+                            onChange={(e) => 
+                                {setFullName(e.target.value)
+                                setPage(0);
+                                load(0); 
+                            }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 setPage(0);
@@ -122,9 +126,10 @@ export default function AuthorsPage() {
                             }
                             onChange={(e) => {
                                 const v = e.target.value;
-                                setIsOnGoodreads(
-                                v === '' ? undefined : v === 'true'
-                                );
+                                const newVal = v === '' ? undefined : v === 'true';
+                                setIsOnGoodreads(newVal);
+                                setPage(0);     
+                                load(0);        
                             }}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {

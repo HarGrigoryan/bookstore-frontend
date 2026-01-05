@@ -54,18 +54,29 @@ export default function BookListPage() {
     setSelectedGenre(s.selectedGenre ?? '');
     setCharacterName(s.characterName ?? '');
     setReadyToLoad(true);
+    setTimeout(() => setReadyToLoad(true), 0);
   }, []);
 
   useEffect(() => {
     if (!readyToLoad) return;
 
-    const initialPage = (location.state as any)?.page ?? 0;
+     const initialPage = (location.state as any)?.authorName ? 0 : (location.state as any)?.page ?? 0;
     load(initialPage); 
   }, [readyToLoad]);
 
   useEffect(() => {
-    if (readyToLoad) load(0);
-  }, [selectedLanguage, selectedGenre]);
+    if (!readyToLoad) return;
+
+    // Don't run if both are still their initial values from location.state
+    const s = location.state as any;
+    const initialLanguage = s?.selectedLanguage ?? '';
+    const initialGenre = s?.selectedGenre ?? '';
+
+    // Only load if the current filter differs from initial values
+    if (selectedLanguage !== initialLanguage || selectedGenre !== initialGenre) {
+      load(0);
+    }
+  }, [selectedLanguage, selectedGenre, readyToLoad]);
 
 
   useEffect(() => {
@@ -164,7 +175,7 @@ export default function BookListPage() {
             onClick={() => {
               const s = location.state as any;
               navigate('/authors', { state: s?.authorsState });
-            }}
+            }}  
             style={{
               marginBottom: 10,
               alignSelf: 'flex-start',
