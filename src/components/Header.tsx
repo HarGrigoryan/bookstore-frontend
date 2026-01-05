@@ -46,7 +46,10 @@ export default function Header({ showAuth = true }: { showAuth?: boolean }) {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        marginBottom: 16,
+        width: '100%',        
+        left: 0,
+        maxWidth: '100vw',
+        marginBottom: 16
     }}>
       <h1 style={{ margin: 0, fontSize: 28, textShadow: '1px 1px 1px #000000'}}>
         <Link to="/" style={{color:'#00008b'}}>Bookstore</Link>

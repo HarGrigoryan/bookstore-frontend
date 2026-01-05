@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { fetchWithAuth } from '../api/fetchWithAuth'; // adjust path if needed
+import { fetchWithAuth } from '../api/fetchWithAuth'; 
 import { Role, Permission } from '../security/Enums';
-import type { UserDTO } from '../types'; // optional type, adjust if your types path differs
+import type { UserDTO } from '../types';
+import { isManager } from '../security/Utils';
+
 
 type Props = {
   userId: number;
@@ -25,7 +27,8 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
   const [userRoles, setUserRoles] = useState<Role[]>([]);
   const [rolePermissions, setRolePermissions] = useState<Partial<Record<Role, Permission[]>>>({});
 
-
+  const [canEditRolesOrPermissions, setCanEditRolesOrPermissions] = useState(false);
+ 
 
   useEffect(() => {
     let mounted = true;
@@ -47,6 +50,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
         setEnabled(Boolean(data.enabled));
         setUserRoles(data.roles ?? []);
         setRolePermissions(data.permissions ?? {});
+        setCanEditRolesOrPermissions(isManager);
       } catch (e: any) {
         setError(e.message || 'Failed to load user');
       } finally {
@@ -222,6 +226,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
                   type="checkbox"
                   checked={userRoles.includes(r)}
                   onChange={() => toggleRole(r)}
+                  disabled={!canEditRolesOrPermissions}
                 />
                 {' '}{String(r)}
               </label>
@@ -240,6 +245,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdated }: Props) 
             type="checkbox"
             checked={rolePermissions[role]?.includes(p) ?? false}
             onChange={() => togglePermission(role, p)}
+            disabled={!canEditRolesOrPermissions}
           />
             {' '}{p}
             </label>
