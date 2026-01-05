@@ -195,3 +195,11 @@ export async function fetchUsers(params:UserSearchParams) {
   console.log("User data fetched:", data)
   return data
 }
+
+export async function deleteBookById(bookId: number) {
+  console.log("[DELETE BOOK] called with book id", bookId)
+  const resp = await fetchWithAuth(`api/books/${bookId}`, {
+    method: 'DELETE'
+  });
+  if (!resp.ok) throw new Error('Failed to delete book');
+}

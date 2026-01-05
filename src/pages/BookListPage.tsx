@@ -5,6 +5,11 @@ import { fetchBooks, fetchGenres, fetchLanguages } from '../api/api';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
+import ConfirmModal from '../components/ConfirmModal';
+import { deleteBookById } from '../api/api';
+import { hasPermission, isManager, isStaff } from '../security/Utils';
+import { Permission } from '../security/Enums';
+
 
 
 const ACCENT = '#2563eb'; 
@@ -39,6 +44,9 @@ export default function BookListPage() {
   const [readyToLoad, setReadyToLoad] = useState(false);
 
   const navigate = useNavigate();
+
+  const [bookToDelete, setBookToDelete] = useState<BookSearchResponseDTO | null>(null);
+  const canDelete = isAuthenticated && (isManager() || isStaff() || hasPermission(Permission.REMOVE_BOOK));
 
 
   useEffect(() => {
@@ -326,6 +334,27 @@ export default function BookListPage() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                  { canDelete && (
+                    <button
+                      onClick={() => setBookToDelete(b)}
+                      style={{
+                        // margin: 8,
+                        backgroundColor: '#dc2626',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        fontSize: 12,
+                        display: 'block',
+                        textAlign: 'center',
+                        height: 32
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+
                   <h3 style={{ margin: 0, fontSize: 16 }}>
                     {isAuthenticated &&(
                        <Link
@@ -384,6 +413,25 @@ export default function BookListPage() {
                             {isExpanded ? 'Show less' : 'Show more'}
                           </button>
                         )}
+                        {bookToDelete && (
+                          <ConfirmModal
+                            message={`Are you sure you want to delete "${bookToDelete.title}"? Please note that doing so will also delete any instances associated with this book`}
+                            onConfirm={async () => {
+                              try {
+                                await deleteBookById(bookToDelete.id!);
+                                setBooks(prev => prev.filter(b => b.id !== bookToDelete.id));
+                              } catch (e) {
+                                console.error(e);
+                                alert('Failed to delete book');
+                              } finally { 
+                                setBookToDelete(null);
+                              }
+                            }}
+                            onCancel={() => setBookToDelete(null)}
+                          />
+                        )}
+
+
                       </>
                     ) : <em style={{ color: MUTED }}>No description</em>}
                   </div>
