@@ -1,4 +1,5 @@
-import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO, GenreDTO } from '../types';
+import type { Permission, Role } from '../security/Enums';
+import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO, GenreDTO, UserDTO } from '../types';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export type BookSearchParams = {
@@ -14,6 +15,19 @@ export type BookSearchParams = {
   sortBy?: string;
   sortDirection?: string
 };
+
+export type UserSearchParams = {
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  enabled?: boolean;
+  roleName?: Role;
+  permissionName?: Permission;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: string
+}
 
 export type AuthorSearchParams = {
   fullName?: string,
@@ -157,4 +171,27 @@ export async function fetchGenresByBookId(bookId:number) {
   const data =  await res.json() as GenreDTO[];
     console.log('[FETCH] fetchGenresByBookId received:', data);
   return data;
+}
+
+export async function fetchLanguage(languageId:number) {
+    const res = await fetchWithAuth(`/api/languages/${languageId}`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as LanguageDTO; 
+  console.log('[FETCH] languages received:', data);
+  return data;
+}
+
+export async function fetchUsers(params:UserSearchParams) {
+  console.log("[FETCH] users called:")
+  const res = await fetchWithAuth(`/api/users${buildQuery(params)}`)
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text);
+  }
+  const data = (await res.json()) as PageResponseDTO<UserDTO>
+  console.log("User data fetched:", data)
+  return data
 }

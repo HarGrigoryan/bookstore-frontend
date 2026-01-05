@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId, fetchGenresByBookId } from '../api/api';
-import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO } from '../types';
+import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId, fetchGenresByBookId, fetchLanguage } from '../api/api';
+import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO, type LanguageDTO } from '../types';
 import Header from '../components/Header';
 
 const COLORS = {
@@ -27,9 +27,12 @@ export default function BookDetailsPage() {
   const [charsExpanded, setCharsExpanded] = useState(false);
   const [genres, setGenres] = useState<GenreDTO[] | null>(null); 
   const [genresExpanded, setGenresExpanded] = useState(false);
+  const [language, setLanguage] = useState<LanguageDTO | null>(null);
+
 
   const navigate = useNavigate();
   const location = useLocation();
+
 
 
   useEffect(() => {
@@ -55,11 +58,18 @@ export default function BookDetailsPage() {
             setInstances(instancesData);
             setAuthors(authorsData); 
             setCharacters(charactersData);
-            setGenres(genresData)
+            setGenres(genresData);
           })
                 .catch((err) => setError(String(err)))
                 .finally(() => setLoading(false));
-            }, [id]);
+           
+  }, [id]);
+
+  useEffect(() => {
+    if (book?.languageId == null) return;
+    fetchLanguage(book.languageId).then(setLanguage);
+  }, [book]);
+
 
   if (loading) return <div style={{ padding: 40 }}>Loading…</div>;
   if (error) return <div style={{ padding: 40, color: 'red' }}>Error: {error}</div>;
@@ -109,7 +119,8 @@ export default function BookDetailsPage() {
             ISBN: <strong>{book.isbn ? <a href={`https://isbnsearch.org/isbn/${book.isbn}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{book.isbn}</a> : '—'}</strong> &nbsp;|&nbsp;
             Format: <strong>{book.format ?? '—'}</strong> &nbsp;|&nbsp;
             Price: <strong>{book.price != null ? `$${book.price.toFixed(2)}` : '—'}</strong> &nbsp;|&nbsp;
-            Published: <strong>{book.publishDate ?? '—'}</strong>
+            Published: <strong>{book.publishDate ?? '—'}</strong> &nbsp;|&nbsp;
+            Language: <strong>{language?.language}</strong>
             <br/>
             Author(s): <strong>{authors?.length ? authors.map(a => a.fullName).join(', ') : '—'} </strong>
         </p>
@@ -152,7 +163,7 @@ export default function BookDetailsPage() {
                       fontSize: 13,
                     }}
                   >
-                    {charsExpanded ? 'Show less' : 'Show more'}
+                    {genresExpanded ? 'Show less' : 'Show more'}
                   </button>
                 )}
             </div>

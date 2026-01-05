@@ -7,6 +7,7 @@ import { updateUserContext } from '../security/Utils';
 export function LoginForm({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
     try {
       const resp = await login(email, password);
 
-      updateUserContext(resp)
+      await updateUserContext(resp)
 
       if (onLogin) onLogin();
     } catch (err) {
@@ -25,22 +26,34 @@ export function LoginForm({ onLogin }: { onLogin?: () => void }) {
 
   return (
     <main style={{
-      width: '99vw'
+      width: '100vw'
     }}>
       <Header showAuth={false} />
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <h1>Sign into your account</h1>
       </div>
-      <div style={{ minHeight: '64vh', display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: '20px auto', display: 'flex', flexDirection: 'column',  gap: 10 }}>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
+          <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
+          <label style={{ fontSize: 12 }}>
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              style={{ marginRight: 4 }}
+            />
+            Show password
+          </label>
           <button type="submit" style={{ padding: 8, borderRadius: 6, backgroundColor: '#2563eb', color: '#fff' }}>Log in</button>
         </form>
       </div>
       <footer
         style={{        
-          boxSizing: 'border-box', 
+          position: 'fixed', 
+          bottom: 0,       
+          left: 0,   
+          width: '100%',
           padding: '12px 20px',    
           marginTop: 20,
           backgroundColor: '#f8fafc', 
@@ -72,6 +85,8 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +104,7 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
         password,
       });
       
-      updateUserContext(resp)
+      await updateUserContext(resp)
 
       if (onSignup) onSignup();
     } catch (err) {
@@ -99,7 +114,9 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
 
 
   return (
-    <main style={{width: '99vw'}}>
+    <main style={{
+      width: '100vw'
+    }}>
       <Header showAuth={false} />
       <div style={{
         display: 'flex',
@@ -109,7 +126,6 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
         <h1>Create an account</h1>
       </div>
       <div style={{ 
-        minHeight: '67vh', 
         display: 'flex', 
         alignItems: 'center' 
         }}>
@@ -134,17 +150,30 @@ export function SignupForm({ onSignup }: { onSignup?: () => void }) {
           />
 
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
-          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
+          <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
+          <input type={showPassword ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm password" required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}/>
+          <label style={{ fontSize: 12 }}>
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              style={{ marginRight: 4 }}
+            />
+            Show password
+          </label>
+
           <button type="submit" style={{ padding: 8, borderRadius: 6, backgroundColor: '#16a34a', color: '#fff' }}>Sign up</button>
         </form>
       </div>
 
       <footer
         style={{        
-          boxSizing: 'border-box', 
+          position: 'fixed', 
+          bottom: 0,       
+          left: 0,   
+          width: '100%',      
           padding: '12px 20px',    
-          // marginTop: 20,
+          marginTop: 20,
           backgroundColor: '#f8fafc', 
           fontSize: 13,
           textAlign: 'center',

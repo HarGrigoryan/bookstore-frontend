@@ -5,12 +5,14 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import HomePage from './pages/HomePage';
 import AuthorsPage from './pages/Authors';
+import UsersPage from './pages/Users';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/authors" element={<AuthorsPage />} />
+      <Route path="/users" element={<UsersPage/>} />
       <Route path="/books" element={<BookListPage />} />
       <Route path="/books/:id/details" element={<BookDetailsPage />} />
       <Route path="/login" element={<LoginPage />} />

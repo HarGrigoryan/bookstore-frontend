@@ -6,9 +6,8 @@ export default function AuthorsPage() {
             <Header />
             <div
             style={{
-                width: '99vw',             
+                width: '100vw',             
                 fontFamily: 'Inter, system-ui, Arial',
-                minHeight: '82vh',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -21,7 +20,10 @@ export default function AuthorsPage() {
 
             <footer
                 style={{        
-                boxSizing: 'border-box', 
+                position: 'fixed', 
+                bottom: 0,       
+                left: 0,         
+                width: '100%',
                 padding: '12px 20px',    
                 backgroundColor: '#f8fafc', 
                 fontSize: 13,

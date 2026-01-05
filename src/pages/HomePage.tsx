@@ -8,7 +8,6 @@ export default function HomePage() {
             style={{
                 width: '99vw',             
                 fontFamily: 'Inter, system-ui, Arial',
-                minHeight: '82vh',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -21,14 +20,17 @@ export default function HomePage() {
 
             <footer
                 style={{        
-                boxSizing: 'border-box', 
-                padding: '12px 20px',    
-                backgroundColor: '#f8fafc', 
-                fontSize: 13,
-                textAlign: 'center',
+                    position: 'fixed', 
+                    bottom: 0,       
+                    left: 0,   
+                    width: '100%',
+                    padding: '12px 20px',    
+                    backgroundColor: '#f8fafc', 
+                    fontSize: 13,
+                    textAlign: 'center',
                 }}
             >
-                © {new Date().getFullYear()} HG Bookstore. All rights reserved.
+                © {new Date().getFullYear()} HG. All rights reserved.
             </footer>
 
         </>

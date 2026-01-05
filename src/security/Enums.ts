@@ -1,16 +1,16 @@
 export const Role = {
-  MANAGER: 'MANAGER',
-  STAFF: 'STAFF',
-  USER: 'USER',
+  MANAGER: 'ROLE_MANAGER',
+  STAFF: 'ROLE_STAFF',
+  USER: 'ROLE_USER',
 } as const;
 
 export type Role =
   typeof Role[keyof typeof Role];
 
 export const RoleLabel: Record<Role, string> = {
-  MANAGER: 'Manager',
-  STAFF: 'Staff',
-  USER: 'User',
+  ROLE_MANAGER: 'Manager',
+  ROLE_STAFF: 'Staff',
+  ROLE_USER: 'User',
 };
 
 

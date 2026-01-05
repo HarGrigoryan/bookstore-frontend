@@ -80,6 +80,7 @@ export interface UserDTO {
   email: string;
   createdAt: string;   
   updatedAt: string;   
+  enabled: boolean;
   roles: Role[];
   permissions: Record<Role, Permission[]>;
 }

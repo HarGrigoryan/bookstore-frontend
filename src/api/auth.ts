@@ -1,4 +1,3 @@
-import { use } from 'react';
 import type { LoginResponseDTO, UserDTO } from '../types'
 import { fetchWithAuth } from './fetchWithAuth';
 

@@ -145,7 +145,7 @@ export default function BookListPage() {
       style={{
         width: '99vw',             
         fontFamily: 'Inter, system-ui, Arial',
-        minHeight: '89vh',
+        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         
@@ -365,7 +365,7 @@ export default function BookListPage() {
 
         <div 
           className="pagination-container"
-          style={{ marginTop: 18, display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+          style={{ marginTop: 18, display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 40 }}>
 
           <button
             className="pagination-first"
@@ -455,7 +455,10 @@ export default function BookListPage() {
 
       <footer
       style={{         
-        boxSizing: 'border-box', 
+        position: 'fixed', 
+        bottom: 0,       
+        left: 0,   
+        width: '100%',
         padding: '12px 20px',    
         marginTop: 'auto',
         backgroundColor: '#f8fafc', 
