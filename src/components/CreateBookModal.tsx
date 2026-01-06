@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fetchAuthors, fetchGenres, fetchSeries, fetchAwards, fetchLanguages, fetchPublishers, fetchCharacters } from "../api/api";
-import type { AuthorDTO, GenreDTO, SeriesDTO, AwardDTO, LanguageDTO, PublisherDTO, CharacterDTO } from "../types/types";
+import { fetchAuthors, fetchGenres, fetchSettings, fetchSeries, fetchAwards, fetchLanguages, fetchPublishers, fetchCharacters } from "../api/api";
+import type { AuthorDTO, GenreDTO, SeriesDTO, AwardDTO, LanguageDTO, PublisherDTO, CharacterDTO, SettingDTO } from "../types/types";
 import type { BookCreateDTO } from "../types/RequestDTOs";
 import { AuthorRole, Format } from "../types/Enums";
 import { fetchWithAuth } from "../api/fetchWithAuth";
@@ -20,6 +20,7 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
     firstPublishDate: "",
     description: "",
     format: undefined,
+    price: undefined,
     isbn: "",
     authorIds: [],
     authorRoles: [],
@@ -33,6 +34,7 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
 
   const [authors, setAuthors] = useState<AuthorDTO[]>([]);
   const [genres, setGenres] = useState<GenreDTO[]>([]);
+  const [settings, setSettings] = useState<SettingDTO[]>([]);
   const [series, setSeries] = useState<SeriesDTO[]>([]);
   const [awards, setAwards] = useState<AwardDTO[]>([]);
   const [languages, setLanguages] = useState<LanguageDTO[]>([]);
@@ -43,6 +45,7 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
   const [genreSearch, setGenreSearch] = useState<string>("");
   const [awardSearch, setAwardSearch] = useState<string>("");
   const [characterSearch, setCharacterSearch] = useState<string>("");
+  const [settingSearch, setSettingSearch] = useState<string>("");
 
 
     useEffect(() => {
@@ -60,13 +63,15 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
         fetchLanguages(),
         fetchPublishers(),
         fetchCharacters(),
-    ]).then(([g, s, a, l, p, c]) => {
+        fetchSettings(),
+    ]).then(([g, s, a, l, p, c, st]) => {
         setGenres(g);
         setSeries(s);
         setAwards(a);
         setLanguages(l);
         setPublishers(p);
         setCharacters(c);
+        setSettings(st);
     });
     }, []);
 
@@ -161,6 +166,42 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
           <input type="text" className="border p-1 w-full" value={book.title} onChange={e => handleInput("title", e.target.value)} />
         </div>
 
+        {/* Description */}
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+        <label>Description</label>
+        <br/>
+        <textarea
+            className="border p-1 w-full"
+            value={book.description}
+            onChange={e => handleInput("description", e.target.value)}
+            rows={4}
+            placeholder="Enter book description..."
+        />
+        </div>
+
+        {/* First Publish Date */}
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+        <label>First Publish Date</label>
+        <input
+            type="date"
+            className="border p-1 w-full"
+            value={book.firstPublishDate ?? ""}
+            onChange={e => handleInput("firstPublishDate", e.target.value)}
+        />
+        </div>
+
+        {/* Publish Date */}
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+        <label>Publish Date</label>
+        <input
+            type="date"
+            className="border p-1 w-full"
+            value={book.publishDate ?? ""}
+            onChange={e => handleInput("publishDate", e.target.value)}
+        />
+        </div>
+
+
         <div className="mb-2" style={{ marginBottom: 10 }}>
             <label>Format</label>
             <br />
@@ -174,6 +215,34 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
                 <option key={f} value={f}>{f}</option>
                 ))}
             </select>
+        </div>
+
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+            <label>Price </label>
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                className="border p-1 w-full"
+                value={book.price ?? ""}
+                onChange={e =>
+                handleInput(
+                    "price",
+                    e.target.value === "" ? undefined : Number(e.target.value)
+                )
+                }
+            />
+        </div>
+
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+            <label>ISBN </label>
+            <input
+                type="text"
+                className="border p-1 w-full"
+                value={book.isbn}
+                onChange={e => handleInput("isbn", e.target.value)}
+                placeholder="ISBN-10 or ISBN-13"
+            />
         </div>
 
 
@@ -214,9 +283,44 @@ const BookCreateModal: React.FC<BookCreateModalProps> = ({ onClose, onCreated })
                 .filter(g => g.name.toLowerCase().includes(genreSearch.toLowerCase()))
                 .map(g => <option key={g.id} value={g.id}>{g.name}</option>)
             }
-        </select>
-
+            </select>
         </div>
+
+        <div className="mb-2" style={{ marginBottom: 10 }}>
+            <label style={{ marginRight: 10 }}>Settings</label>
+
+            <input
+                type="text"
+                placeholder="Search settings..."
+                className="border p-1 w-full mb-1"
+                value={settingSearch}
+                onChange={e => setSettingSearch(e.target.value)}
+                style={{ marginBottom: 10 }}
+            />
+
+            <select
+                multiple
+                className="border p-1 w-full"
+                value={book.settingIds?.map(String)}
+                onChange={e =>
+                handleInput(
+                    "settingIds",
+                    Array.from(e.target.selectedOptions, opt => Number(opt.value))
+                )
+                }
+            >
+                {settings
+                .filter(s =>
+                    s.name.toLowerCase().includes(settingSearch.toLowerCase())
+                )
+                .map(s => (
+                    <option key={s.id} value={s.id}>
+                    {s.name}
+                    </option>
+                ))}
+            </select>
+            </div>
+
 
         <div className="mb-2" style={{marginBottom: 10}}>
           <label style={{marginRight: 10}}>Awards</label>
