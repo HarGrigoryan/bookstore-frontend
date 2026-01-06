@@ -9,7 +9,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import { deleteBookById } from '../api/api';
 import { hasPermission, isManager, isStaff } from '../security/Utils';
 import { Permission } from '../security/Enums';
-
+import { useRef } from 'react';
 
 
 const ACCENT = '#2563eb'; 
@@ -30,6 +30,7 @@ export default function BookListPage() {
   const [pageInput, setPageInput] = useState('1'); // UI is 1-based
   const [expanded, setExpanded] = useState<Record<number, boolean>>({}); 
   const [title, setTitle] = useState('');
+  const [titleExpanded, setTitleExpanded] = useState<Record<number, boolean>>({});
   const [isbn, setIsbn ] = useState('');
   const [authorName, setAuthorName ] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -47,6 +48,37 @@ export default function BookListPage() {
 
   const [bookToDelete, setBookToDelete] = useState<BookSearchResponseDTO | null>(null);
   const canDelete = isAuthenticated && (isManager() || isStaff() || hasPermission(Permission.REMOVE_BOOK));
+
+  const clearTriggeredRef = useRef(false);
+
+  function clearFilters() {
+    clearTriggeredRef.current = true;
+
+    setTitle('');
+    setIsbn('');
+    setAuthorName('');
+    setSelectedLanguage('');
+    setSelectedGenre('');
+    setCharacterName('');
+  }
+
+  function toggleTitleExpand(id: number) {
+    setTitleExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  useEffect(() => {
+    if (!clearTriggeredRef.current) return;
+
+    clearTriggeredRef.current = false;
+    load(0);
+  }, [
+    title,
+    isbn,
+    authorName,
+    selectedLanguage,
+    selectedGenre,
+    characterName
+  ]);
 
 
   useEffect(() => {
@@ -125,7 +157,7 @@ export default function BookListPage() {
     return () => window.removeEventListener('storage', syncAuth);
   }, []);
 
-  async function load(requestedPage = 0) {
+  async function  load(requestedPage = 0) {
     setLoading(true);
     setError(null);
 
@@ -197,7 +229,35 @@ export default function BookListPage() {
             ← Back to authors
           </button>
         )}
-        <section style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+        <section
+          style={{
+            marginBottom: 12,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap'
+          }}
+        >
+          <button
+            onClick={() => {
+              clearFilters();
+              navigate('.', { replace: true, state: null });
+            }}
+            style={{
+              marginLeft: 10,
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: '1px solid #ddd',
+              background: '#f8fafc',
+              cursor: 'pointer',
+              fontSize: 13,
+              color: '#374151'
+            }}
+          >
+            Clear filters
+          </button>
+
           <input
             type="text"
             placeholder="title…"
@@ -261,7 +321,16 @@ export default function BookListPage() {
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              style={{marginLeft: 10}}
+              style={{
+                width: 280,
+                height: 36,              
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #ddd',
+                fontSize: 14,
+                backgroundColor: '#fff',
+                marginLeft: 10
+              }}
             >
               <option value="">Select language…</option>
               {languages.map(lang => (
@@ -296,7 +365,16 @@ export default function BookListPage() {
             <select
               value={selectedGenre}
               onChange={(e) => setSelectedGenre(e.target.value)}
-              style={{marginLeft: 10}}
+              style={{
+                width: 280,
+                height: 36,              
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #ddd',
+                fontSize: 14,
+                backgroundColor: '#fff',
+                marginLeft: 10
+              }}
             >
               <option value="">Select genre...</option>
               {genres.map(genre => (
@@ -324,7 +402,10 @@ export default function BookListPage() {
             if (!b.id) return null;
               const id = b.id;
             const long = (b.description ?? '').length > 500;
-            const isExpanded = !!expanded[id];
+            const longTitle = (b.title ?? '').length > 30;
+            const isDescExpanded = !!expanded[id];
+            const isTitleExpanded = !!titleExpanded[id];
+
             return (
               <article key={id} style={{
                 background: CARD_BG,
@@ -338,7 +419,6 @@ export default function BookListPage() {
                     <button
                       onClick={() => setBookToDelete(b)}
                       style={{
-                        // margin: 8,
                         backgroundColor: '#dc2626',
                         color: '#fff',
                         border: 'none',
@@ -356,28 +436,46 @@ export default function BookListPage() {
                   )}
 
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {isAuthenticated &&(
-                       <Link
-                          to={`/books/${id}/details`}
-                          state={{
-                            page,
-                            title,
-                            isbn,
-                            authorName, 
-                            selectedLanguage,
-                            selectedGenre,
-                            characterName,
-                          }}
-                      style={{ color: 'inherit', textDecoration: 'none' }}
-                    >
-                      {b.title || '—'}
-                    </Link>
+                    {isAuthenticated ? (
+                      <Link
+                        to={`/books/${id}/details`}
+                        state={{
+                          page,
+                          title,
+                          isbn,
+                          authorName,
+                          selectedLanguage,
+                          selectedGenre,
+                          characterName,
+                        }}
+                        style={{ color: 'inherit', textDecoration: 'none' }}
+                      >
+                        {!longTitle || isTitleExpanded
+                          ? (b.title || '—')
+                          : (b.title!.slice(0, 30) + '…')}
+                      </Link>
+                    ) : (
+                      !longTitle || isTitleExpanded
+                        ? (b.title || '—')
+                        : (b.title!.slice(0, 30) + '…')
                     )}
-                    { !isAuthenticated &&(
-                      b.title || '—'
-                    )
-                    }
-                   
+
+                    {longTitle && (
+                      <button
+                        onClick={() => toggleTitleExpand(id)}
+                        style={{
+                          marginLeft: 6,
+                          background: 'transparent',
+                          color: ACCENT,
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                          fontSize: 13
+                        }}
+                      >
+                        {isTitleExpanded ? 'less' : 'more'}
+                      </button>
+                    )}
                   </h3>
 
                   <div style={{ textAlign: 'right', fontSize: 12, color: MUTED }}>
@@ -395,7 +493,7 @@ export default function BookListPage() {
                     {b.description ? (
                       <>
                         <div>
-                          {(!long || isExpanded) ? b.description : (b.description.slice(0, 220) + '…')}
+                          {(!long || isDescExpanded) ? b.description : (b.description.slice(0, 220) + '…')}
                         </div>
                         {long && (
                           <button
@@ -410,7 +508,7 @@ export default function BookListPage() {
                               fontSize: 13
                             }}
                           >
-                            {isExpanded ? 'Show less' : 'Show more'}
+                            {isDescExpanded ? 'Show less' : 'Show more'}
                           </button>
                         )}
                         {bookToDelete && (
