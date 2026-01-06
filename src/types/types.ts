@@ -1,4 +1,4 @@
-import type { Role, Permission } from './security/Enums'
+import type { Role, Permission } from '../security/Enums'
 
 export interface BookSearchResponseDTO {
   id: number;
@@ -83,4 +83,25 @@ export interface UserDTO {
   enabled: boolean;
   roles: Role[];
   permissions: Record<Role, Permission[]>;
+}
+
+export interface SeriesDTO{
+  id: number;
+  name: string;
+}
+
+export interface PublisherDTO{
+  id: number;
+  name: string;
+}
+
+export interface SettingDTO{
+  id: number;
+  name: string;
+}
+
+export interface AwardDTO{
+  id: number;
+  name: string;
+  year: number
 }

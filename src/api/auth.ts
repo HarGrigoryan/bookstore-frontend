@@ -1,4 +1,4 @@
-import type { LoginResponseDTO, UserDTO } from '../types'
+import type { LoginResponseDTO, UserDTO } from '../types/types'
 import { fetchWithAuth } from './fetchWithAuth';
 
 export async function login(username: string, password: string) {

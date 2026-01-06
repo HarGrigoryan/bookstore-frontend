@@ -1,5 +1,5 @@
 import type { Permission, Role } from '../security/Enums';
-import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO, GenreDTO, UserDTO } from '../types';
+import type { PageResponseDTO, BookSearchResponseDTO, AuthorDTO, AuthorResponseDTO, LanguageDTO, CharacterDTO, GenreDTO, UserDTO, SeriesDTO, PublisherDTO, SettingDTO, AwardDTO } from '../types/types';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export type BookSearchParams = {
@@ -159,6 +159,60 @@ export async function fetchGenres() {
   return data;
 }
 
+export async function fetchSeries(){
+  const res = await fetchWithAuth('/api/series');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as SeriesDTO[]; 
+  console.log('[FETCH] series received:', data);
+  return data;
+}
+
+export async function fetchPublishers(){
+  const res = await fetchWithAuth('/api/publishers');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as PublisherDTO[]; 
+  console.log('[FETCH] series received:', data);
+  return data;
+}
+
+export async function fetchCharacters() {
+    const res = await fetchWithAuth('/api/characters');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as CharacterDTO[]; 
+  console.log('[FETCH] series received:', data);
+  return data;
+}
+
+export async function fetchSettings() {
+  const res = await fetchWithAuth('/api/settings');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as SettingDTO[]; 
+  console.log('[FETCH] series received:', data);
+  return data;
+}
+
+export async function fetchAwards() {
+  const res = await fetchWithAuth('/api/awards');
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  const data = (await res.json()) as AwardDTO[]; 
+  console.log('[FETCH] series received:', data);
+  return data; 
+}
 
 export async function fetchGenresByBookId(bookId:number) {
     console.log('[FETCH] fetchGenresByBookId called with bookId:', bookId);

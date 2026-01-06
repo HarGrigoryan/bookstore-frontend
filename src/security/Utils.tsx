@@ -1,4 +1,4 @@
-import type { LoginResponseDTO, UserDTO } from "../types";
+import type { LoginResponseDTO, UserDTO } from "../types/types";
 import { Role } from "./Enums";    
 import {RoleLabel} from './Enums';
 import type { Permission } from "./Enums";

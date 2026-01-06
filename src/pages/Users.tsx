@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 import { fetchUsers, type UserSearchParams} from '../api/api';
-import type { UserDTO} from '../types';
+import type { UserDTO} from '../types/types';
 import { useEffect, useState } from 'react';
 import { Role } from "../security/Enums";
 import UserDetailsModal from '../components/UserDetailsModal'; 

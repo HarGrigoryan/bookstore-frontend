@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import type { BookSearchResponseDTO, GenreDTO} from '../types';
+import type { BookSearchResponseDTO, GenreDTO} from '../types/types';
 import { fetchBooks, fetchGenres, fetchLanguages } from '../api/api';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -10,6 +10,8 @@ import { deleteBookById } from '../api/api';
 import { hasPermission, isManager, isStaff } from '../security/Utils';
 import { Permission } from '../security/Enums';
 import { useRef } from 'react';
+import BookCreateModal from '../components/CreateBookModal';
+
 
 
 const ACCENT = '#2563eb'; 
@@ -48,8 +50,11 @@ export default function BookListPage() {
 
   const [bookToDelete, setBookToDelete] = useState<BookSearchResponseDTO | null>(null);
   const canDelete = isAuthenticated && (isManager() || isStaff() || hasPermission(Permission.REMOVE_BOOK));
+  const canAdd = isAuthenticated && (isManager() || isStaff() || hasPermission(Permission.ADD_INFORMATION));
 
   const clearTriggeredRef = useRef(false);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   function clearFilters() {
     clearTriggeredRef.current = true;
@@ -257,6 +262,23 @@ export default function BookListPage() {
           >
             Clear filters
           </button>
+
+          { canAdd && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: '1px solid #2563eb',
+                background: '#2563eb',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: 13
+              }}
+            >
+              + Add Book
+            </button>
+          )}
 
           <input
             type="text"
@@ -528,8 +550,6 @@ export default function BookListPage() {
                             onCancel={() => setBookToDelete(null)}
                           />
                         )}
-
-
                       </>
                     ) : <em style={{ color: MUTED }}>No description</em>}
                   </div>
@@ -662,6 +682,16 @@ export default function BookListPage() {
     </footer>
 
     </div>
+    {showCreateModal && (
+      <BookCreateModal
+        onClose={() => setShowCreateModal(false)}
+        onCreated={(book) => {
+          setShowCreateModal(false);
+          load(0);
+        }}
+      />
+    )}
+
   </>
   );
 }

@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fetchAuthorsByBookId, fetchBookById, fetchBookInstances, fetchCharactersByBookId, fetchGenresByBookId, fetchLanguage } from '../api/api';
-import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO, type LanguageDTO } from '../types';
+import { type BookSearchResponseDTO, type PageResponseDTO, type BookInstanceDTO, type CharacterDTO, type AuthorDTO, type GenreDTO, type LanguageDTO } from '../types/types';
 import Header from '../components/Header';
 
 const COLORS = {

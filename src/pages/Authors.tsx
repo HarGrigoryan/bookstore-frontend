@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 import { useEffect, useState } from 'react';
-import type { AuthorDTO } from "../types";
+import type { AuthorDTO } from "../types/types";
 import { fetchAuthors } from "../api/api";
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchWithAuth } from '../api/fetchWithAuth'; 
 import { Role, Permission } from '../security/Enums';
-import type { UserDTO } from '../types';
+import type { UserDTO } from '../types/types';
 import { isManager } from '../security/Utils';
 
 
